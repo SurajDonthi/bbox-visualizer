@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBox & Segmentation Visualizer</title>
+  <link rel="icon" type="image/x-icon" href="favicon_io/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css?v=10">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <h1>BBox & Segmentation Visualizer</h1>
+
+  <div class="container">
+    <!-- Top Bar: Upload & Actions -->
+    <div class="top-bar">
+      <input type="file" id="imageInput" accept="image/*">
+      <button class="upload-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="upload"></i> Upload Image</button>
+      <button onclick="downloadImage()"><i data-lucide="download"></i> Download</button>
+      <button class="secondary" onclick="clearAnnotations()"><i data-lucide="eraser"></i> Clear Annotations</button>
+      <button class="secondary" onclick="clearAll()"><i data-lucide="trash-2"></i> Clear All</button>
+      <div class="stats" id="stats">
+        <span id="imgStats">No image</span> |
+        Boxes: <span id="boxCount">0</span> |
+        Polygons: <span id="segCount">0</span> |
+        Lines: <span id="lineCount">0</span> |
+        Points: <span id="pointCount">0</span>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-panel">
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <div class="drop-hint" id="dropHint">
+          <p>Drop an image here</p>
+          <p>or use the Upload button</p>
+        </div>
+        <canvas id="canvas"></canvas>
+        <!-- Zoom/Pan Controls -->
+        <div class="viewer-controls" id="viewerControls">
+          <button type="button" class="viewer-btn" id="zoomIn" title="Zoom In"><i data-lucide="zoom-in"></i></button>
+          <button type="button" class="viewer-btn" id="zoomOut" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+          <button type="button" class="viewer-btn" id="zoomReset" title="Reset View"><i data-lucide="refresh-cw"></i></button>
+          <button type="button" class="viewer-btn" id="panToggle" title="Toggle Pan Mode"><i data-lucide="move"></i></button>
+          <div class="viewer-divider"></div>
+          <button type="button" class="viewer-btn" id="fullView" title="Full View"><i data-lucide="maximize-2"></i></button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Row: 4 groups side by side -->
+    <div class="controls-row">
+      <div class="control-group">
+        <h3><i data-lucide="square"></i> Bounding Boxes</h3>
+        <div class="control-content">
+          <textarea id="bboxInput" placeholder="x1, y1, x2, y2 (e.g. 100, 100, 300, 250)"></textarea>
+          <div class="control-bar">
+            <input type="color" id="bboxColor" value="#ff3366" title="Color">
+            <span class="ctrl-label">Line</span>
+            <input type="number" id="bboxWidth" value="2" min="1" max="10">
+            <label class="checkbox-label"><input type="checkbox" id="bboxMulti"><i data-lucide="palette"></i></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3><i data-lucide="hexagon"></i> Segmentation</h3>
+        <div class="control-content">
+          <textarea id="segInput" placeholder="[[x,y], ...] e.g. [[100,100], [200,100], [200,200]]"></textarea>
+          <div class="control-bar">
+            <input type="color" id="segColor" value="#00ff88" title="Color">
+            <span class="ctrl-label">Line</span>
+            <input type="number" id="segWidth" value="2" min="1" max="10">
+            <span class="ctrl-label">Fill</span>
+            <input type="range" id="segFill" value="20" min="0" max="100">
+            <label class="checkbox-label"><input type="checkbox" id="segMulti" checked><i data-lucide="palette"></i></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3><i data-lucide="spline"></i> Polylines</h3>
+        <div class="control-content">
+          <textarea id="lineInput" placeholder="[[x,y], ...] e.g. [[50,50], [100,80], [150,50]]"></textarea>
+          <div class="control-bar">
+            <input type="color" id="lineColor" value="#ffaa00" title="Color">
+            <span class="ctrl-label">Line</span>
+            <input type="number" id="lineWidth" value="2" min="1" max="10">
+            <label class="checkbox-label"><input type="checkbox" id="lineMulti"><i data-lucide="palette"></i></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3><i data-lucide="circle-dot"></i> Points</h3>
+        <div class="control-content">
+          <textarea id="pointInput" placeholder="[[x,y], ...] or x,y per line"></textarea>
+          <div class="control-bar">
+            <input type="color" id="pointColor" value="#ff00ff" title="Color">
+            <span class="ctrl-label">R</span>
+            <input type="number" id="pointRadius" value="5" min="1" max="50">
+            <span class="ctrl-label">Op</span>
+            <input type="range" id="pointOpacity" value="80" min="0" max="100">
+            <label class="checkbox-label"><input type="checkbox" id="pointMulti"><i data-lucide="palette"></i></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full View Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+      <img id="modalImage" src="" alt="Full view">
+    </div>
+  </div>
+
+  <script src="script.js?v=5"></script>
+</body>
+</html>
