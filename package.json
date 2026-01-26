@@ -1,0 +1,11 @@
+{
+  "name": "bbox-visualizer",
+  "version": "1.0.0",
+  "description": "BBox & Segmentation Visualizer",
+  "scripts": {
+    "start": "npx serve -s . -l $PORT"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
