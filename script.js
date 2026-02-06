@@ -78,7 +78,8 @@ function parseBboxes(text, imgWidth, imgHeight) {
   const parsedLines = [];
 
   for (const line of lines) {
-    const nums = line.split(',').map(n => parseFloat(n.trim()));
+    const cleaned = line.replace(/[\[\]]/g, '').replace(/,\s*$/, '');
+    const nums = cleaned.split(',').map(n => parseFloat(n.trim()));
     if (nums.length === 4 && nums.every(n => !isNaN(n))) {
       allValues.push(...nums);
       parsedLines.push(nums);
