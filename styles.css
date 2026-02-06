@@ -478,6 +478,10 @@ label {
   color: var(--text-muted);
 }
 
+.drop-upload-btn {
+  margin-top: var(--space-sm);
+}
+
 /* ============================================
    Controls Row
    ============================================ */

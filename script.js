@@ -382,12 +382,21 @@ function updateColorPickers() {
 
 // Paste image from clipboard
 document.addEventListener('paste', (e) => {
-  const items = e.clipboardData?.items;
-  if (!items) return;
-  for (const item of items) {
-    if (item.type.startsWith('image/')) {
+  const cd = e.clipboardData;
+  if (!cd) return;
+  // Check items (index-based since DataTransferItemList may not be iterable)
+  for (let i = 0; i < cd.items.length; i++) {
+    if (cd.items[i].type.startsWith('image/')) {
       e.preventDefault();
-      loadImage(item.getAsFile());
+      loadImage(cd.items[i].getAsFile());
+      return;
+    }
+  }
+  // Fallback: check files
+  for (let i = 0; i < cd.files.length; i++) {
+    if (cd.files[i].type.startsWith('image/')) {
+      e.preventDefault();
+      loadImage(cd.files[i]);
       return;
     }
   }

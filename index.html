@@ -35,8 +35,9 @@
     <div class="canvas-panel">
       <div class="canvas-wrapper" id="canvasWrapper">
         <div class="drop-hint" id="dropHint">
-          <p>Drop an image here</p>
-          <p>or use the Upload button</p>
+          <p>Drop or paste an image here</p>
+          <p>or</p>
+          <button class="upload-btn drop-upload-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="upload"></i> Upload Image</button>
         </div>
         <canvas id="canvas"></canvas>
         <!-- Zoom/Pan Controls -->
