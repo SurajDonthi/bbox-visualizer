@@ -380,6 +380,19 @@ function updateColorPickers() {
   document.getElementById(id).addEventListener('change', updateColorPickers);
 });
 
+// Paste image from clipboard
+document.addEventListener('paste', (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      loadImage(item.getAsFile());
+      return;
+    }
+  }
+});
+
 // Collapsible sections
 document.querySelectorAll('.control-group h3').forEach(h3 => {
   h3.addEventListener('click', () => {
